@@ -140,6 +140,7 @@ main(init_zombie_spawner_name)
 	level thread end_game();
 	level thread round_start();
 	level thread players_playing();
+	level thread babyelefant();
 	if ( IsDefined( level.crawlers_enabled ) && level.crawlers_enabled == 1 )
 	{
 		level thread crawler_round_tracker();
@@ -181,6 +182,45 @@ zombiemode_melee_miss()
 	if( isDefined( self.enemy.curr_pay_turret ) )
 	{
 		self.enemy DoDamage( (60 / GetDvarFloat("player_damageMultiplier")), self.origin, self, self );
+	}
+}
+
+babyelefant()
+{
+	while(1)
+	{
+		players = get_players();
+		for(i=0;i<players.size;i++)
+		{
+			if(is_player_valid( players[i] ))
+			{
+				if(players[i] maps\_laststand::player_is_in_laststand())
+				{
+					continue;
+				}
+				for(a=0;a<players.size;a++)
+				{
+					if(i==a)
+					{
+						continue;
+					}
+				
+					if(is_player_valid( players[i] ))
+					{
+						if(players[a] maps\_laststand::player_is_in_laststand())
+						{
+							continue;
+						}
+						if( DistanceSquared( players[i].origin, players[a].origin ) < ( 200 * 200 ) )
+						{
+							players[i] dodamage( 10, (0,0,0) );	
+							players[a] dodamage( 10, (0,0,0) );	
+						}
+					}
+				}
+			}
+		}
+		wait(.5);
 	}
 }
 
