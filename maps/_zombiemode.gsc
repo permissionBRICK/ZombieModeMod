@@ -126,7 +126,12 @@ main(init_zombie_spawner_name)
 
 	init_dvars();
 	initZombieLeaderboardData();
-
+	level._corona_dialogs = [];
+	
+	level._corona_dialogs[0] = "Was sehen denn da meine Kanzleraugen?";
+	level._corona_dialogs[1] = "Du fuehlst dich ploetzlich Krank und verlierst deinen Geruchssinn!";
+	level._corona_dialogs[2] = "Das sind aber keine 2 Babyelefanten!";
+	level._corona_dialogs[3] = "Anzeige ist raus!";
 
 	flag_wait( "all_players_connected" ); 
 
@@ -187,9 +192,19 @@ zombiemode_melee_miss()
 
 babyelefant()
 {
+	wait(4);
+	players = get_players();
+	for(i=0;i<players.size;i++)
+	{
+		players[i].corona = false;
+	}
 	while(1)
 	{
 		players = get_players();
+		for(i=0;i<players.size;i++)
+		{
+			players[i].coronaneu = false;
+		}
 		for(i=0;i<players.size;i++)
 		{
 			if(is_player_valid( players[i] ))
@@ -213,11 +228,29 @@ babyelefant()
 						}
 						if( DistanceSquared( players[i].origin, players[a].origin ) < ( 200 * 200 ) )
 						{
-							players[i] dodamage( 10, (0,0,0) );	
-							players[a] dodamage( 10, (0,0,0) );	
+							players[i].coronaneu = true;
+							players[a].coronaneu = true;
 						}
 					}
 				}
+			}
+		}
+		dialog = level._corona_dialogs[RandomInt(level._corona_dialogs.size)];
+		for(i=0;i<players.size;i++)
+		{
+			if(players[i].corona != true && players[i].coronaneu == true)
+			{
+				players[i].corona = true;
+				
+				players[i] iprintln(dialog);
+			}
+			if(players[i].coronaneu != true && players[i].corona == true)
+			{
+				players[i].corona = false;
+			}
+			if(players[i].corona == true)
+			{
+				players[i] dodamage( 20, players[i].origin );	
 			}
 		}
 		wait(.5);
